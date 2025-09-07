@@ -1,7 +1,8 @@
-# 🚀 Project Management System – *Janith Prabhash*
+# 🚀 Project Management System – Janith Prabhash
 
-[![Build Status](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml)
-[![Tests-Passing](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=vitest)]()
+[![CI](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml)
+[![Pages](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-web.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-web.yml)
+[![Server Image](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-server.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-server.yml)
 [![Docker-Ready](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)]()
 
 A small, production-like slice of a **Projects & Tasks** app.
@@ -26,7 +27,7 @@ A small, production-like slice of a **Projects & Tasks** app.
 - Admin can assign tasks to **any member**.  
 - **Optimistic locking:** `PATCH /tasks/:id` requires a version via `If-Match` header (preferred) or `body.version`.  
 
-##  How to Run (PowerShell)
+##  How to Run Locally (PowerShell)
 
 ###  Prerequisites
 - Node.js **18+**  
@@ -36,25 +37,29 @@ A small, production-like slice of a **Projects & Tasks** app.
 
 ```powershell
 # 1) Start Postgres via Docker (recommended)
-cd d:\Projects\NovaVantix\FS-Intern_YourName
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash
 docker compose up -d
 
-# 2) Install dependencies & prepare DB
-cd server
+# 2) Backend: install deps & prepare DB
+cd .\server
+copy .env.sample .env
 npm install
 npx prisma generate
 npm run db:reset
 
+# 3) Frontend: install deps
 cd ..\web
 npm install
 
-# 3) Run the apps
+# 4) Run the apps
+# Backend (terminal 1)
 cd ..\server
 npm run dev
 
-cd d:\Projects\NovaVantix\FS-Intern_YourName\web
+# Frontend (terminal 2)
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\web
 npm run dev
-````
+```
 
 * Backend → [http://localhost:4000](http://localhost:4000)
 * Frontend → [http://localhost:5173](http://localhost:5173)
@@ -80,11 +85,41 @@ Copy `.env.sample` → `.env` in `server/` and adjust as needed.
 * `PATCH /tasks/:id` *(If-Match or body.version)*
 * `DELETE /tasks/:id` *(member: own; admin: any)*
 
-## Tests
+## Tests (Server)
 
 ```powershell
-cd d:\Projects\NovaVantix\FS-Intern_YourName\server
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\server
 npm test
+```
+
+## CI/CD
+
+This repo includes GitHub Actions:
+
+- ci.yml: build, lint, and test the server; build the web.
+- deploy-web.yml: builds the web app and deploys to GitHub Pages.
+- deploy-server.yml: builds and pushes the server Docker image to GitHub Container Registry (GHCR).
+
+First-time setup you do once in GitHub repository settings:
+
+- Pages: set Source to GitHub Actions.
+- Packages permissions: ensure GITHUB_TOKEN has write permission to packages (default for public repos).
+- Optionally set repository secrets (if you later push to a cloud registry or need non-default env).
+
+Local Docker image build for the server:
+
+```powershell
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\server
+docker build -t task-nebula-server:local .
+```
+
+Run with a local Postgres:
+
+```powershell
+docker run --rm -p 4000:4000 `
+  -e DATABASE_URL="postgresql://app:app@host.docker.internal:5432/app?schema=public" `
+  -e JWT_SECRET="changeme" `
+  task-nebula-server:local
 ```
 
 ## What Works vs. Partial

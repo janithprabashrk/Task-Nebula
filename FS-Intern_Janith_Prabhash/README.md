@@ -1,5 +1,9 @@
 # Project management system - Janith Prabhash
 
+[![CI](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml)
+[![Pages](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-web.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-web.yml)
+[![Server Image](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-server.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/deploy-server.yml)
+
 A small, production‑like slice of a Projects & Tasks app.
 
 Tech stack
@@ -25,7 +29,7 @@ Prereqs
 1) Start Postgres via Docker (recommended)
 
 ```powershell
-cd d:\Projects\NovaVantix\FS-Intern_YourName
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash
 docker compose up -d
 ```
 
@@ -34,6 +38,7 @@ docker compose up -d
 ```powershell
 # Backend
 cd server
+copy .env.sample .env
 npm install
 npx prisma generate
 npm run db:reset
@@ -51,7 +56,7 @@ cd ..\server
 npm run dev
 
 # Frontend (in a new terminal)
-cd d:\Projects\NovaVantix\FS-Intern_YourName\web
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\web
 npm run dev
 ```
 
@@ -79,8 +84,23 @@ Seeded users
 ## Tests
 
 ```powershell
-cd d:\Projects\NovaVantix\FS-Intern_YourName\server
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\server
 npm test
+```
+
+## CI/CD
+
+GitHub Actions workflows are included:
+
+- ci.yml: checks server (lint, build, tests) and builds web.
+- deploy-web.yml: deploys the web app to GitHub Pages when changes land on main.
+- deploy-server.yml: builds and pushes a Docker image to GHCR.
+
+Local server container build:
+
+```powershell
+cd d:\Projects\NovaVantix\Task-Nebula\FS-Intern_Janith_Prabhash\server
+docker build -t task-nebula-server:local .
 ```
 
 ## What works vs. partial
