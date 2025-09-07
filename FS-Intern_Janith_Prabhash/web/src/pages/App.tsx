@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles.css';
 
-const API_URL = 'http://localhost:4000';
+const API_URL = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:4000';
 
 function useAuth() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
