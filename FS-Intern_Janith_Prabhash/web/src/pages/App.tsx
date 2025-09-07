@@ -39,12 +39,24 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const headers = useMemo(() => ({ 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' }), [token]);
+  const headers = useMemo(() => (
+    { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' } as Record<string, string>
+  ), [token]);
+
+  async function fetchAuth(input: RequestInfo | URL, init?: RequestInit) {
+    const res = await fetch(input, init);
+    if (res.status === 401) {
+      // Token is invalid/stale; force logout to return to sign-in
+      logout();
+      throw new Error('Unauthorized');
+    }
+    return res;
+  }
 
   useEffect(() => {
     if (!token) return;
     setLoading(true); setError(null);
-    fetch(`${API_URL}/projects?q=${encodeURIComponent(q)}`, { headers })
+    fetchAuth(`${API_URL}/projects?q=${encodeURIComponent(q)}`, { headers })
       .then(async (r) => { if (!r.ok) throw new Error(await r.text()); return r.json(); })
       .then(setProjects)
       .catch((e) => setError(String(e)))
@@ -53,7 +65,7 @@ export function App() {
 
   useEffect(() => {
     if (!token || user?.role !== 'admin') return;
-    fetch(`${API_URL}/projects/users`, { headers })
+    fetchAuth(`${API_URL}/projects/users`, { headers })
       .then(async (r) => { if (!r.ok) throw new Error(await r.text()); return r.json(); })
       .then(setUsers)
   .catch(() => {});
@@ -61,7 +73,7 @@ export function App() {
 
   const loadTasks = (projectId: number) => {
     setLoading(true); setError(null);
-    fetch(`${API_URL}/projects/${projectId}/tasks`, { headers })
+  fetchAuth(`${API_URL}/projects/${projectId}/tasks`, { headers })
       .then(async (r) => { if (!r.ok) throw new Error(await r.text()); return r.json(); })
       .then((ts) => { setTasks(ts); })
       .catch((e) => setError(String(e)))
@@ -70,7 +82,7 @@ export function App() {
 
   const onCreateTask = async (title: string) => {
     if (!selectedProject) return;
-    const res = await fetch(`${API_URL}/projects/${selectedProject.id}/tasks`, { method: 'POST', headers, body: JSON.stringify({ title }) });
+  const res = await fetchAuth(`${API_URL}/projects/${selectedProject.id}/tasks`, { method: 'POST', headers, body: JSON.stringify({ title }) });
     if (!res.ok) { alert('Failed to create'); return; }
     const t = await res.json();
     setTasks((prev) => [t, ...prev]);
@@ -83,7 +95,7 @@ export function App() {
     const idx = tasks.findIndex((t) => t.id === task.id);
     const next = { ...task, ...updates, version: task.version + 1 };
     setTasks((prev) => prev.map((t) => (t.id === task.id ? next : t)));
-    const res = await fetch(`${API_URL}/tasks/${task.id}`, {
+  const res = await fetchAuth(`${API_URL}/tasks/${task.id}`, {
       method: 'PATCH',
       headers: { ...headers, 'If-Match': String(task.version) },
       body: JSON.stringify(updates),
@@ -194,7 +206,7 @@ export function App() {
                           <button className="btn ghost" onClick={async () => {
                             const orig = [...tasks];
                             setTasks(tasks.filter(x => x.id !== t.id));
-                            const res = await fetch(`${API_URL}/tasks/${t.id}`, { method: 'DELETE', headers });
+                            const res = await fetchAuth(`${API_URL}/tasks/${t.id}`, { method: 'DELETE', headers });
                             if (!res.ok && res.status !== 204) {
                               setTasks(orig);
                               alert('Delete failed');
