@@ -101,5 +101,3 @@ Known issues
 	    Browser <--- JSON -----+   --> pino logs, error handler, /metrics
 ```
 
-Submission
-- Zip or share a Drive/Dropbox link of the root folder `FS-Intern_<YourName>` and email to info@novavantix.com with subject `Full‑Stack Intern — <Your Name>`.
