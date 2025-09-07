@@ -1,9 +1,12 @@
 # 🚀 Project Management System – *Janith Prabhash*
 
+[![Build Status](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/janithprabashrk/Task-Nebula/actions/workflows/ci.yml)
+[![Tests-Passing](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=vitest)]()
+[![Docker-Ready](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)]()
+
 A small, production-like slice of a **Projects & Tasks** app.
 
-## 🛠 Tech Stack  
-
+##  Tech Stack  
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)  
 ![Express](https://img.shields.io/badge/Express.js-Backend-lightgrey?logo=express)  
 ![TypeScript](https://img.shields.io/badge/TypeScript-Frontend%20%26%20Backend-blue?logo=typescript)  
@@ -15,112 +18,92 @@ A small, production-like slice of a **Projects & Tasks** app.
 ![Zod](https://img.shields.io/badge/Validation-Zod-purple)  
 ![Vitest](https://img.shields.io/badge/Tests-Vitest-blueviolet)  
 ![Supertest](https://img.shields.io/badge/Tests-Supertest-orange)  
-![Pino](https://img.shields.io/badge/Logs-Pino-green)  
-![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?logo=docker)  
+![Pino](https://img.shields.io/badge/Logs-Pino-green)
 
----
-
-## 📌 Assumptions
+##  Assumptions
 - Members can **view projects** that have at least one task assigned to them.  
 - Members can **create/edit tasks** only where **assignee = self**.  
 - Admin can assign tasks to **any member**.  
 - **Optimistic locking:** `PATCH /tasks/:id` requires a version via `If-Match` header (preferred) or `body.version`.  
 
----
+##  How to Run (PowerShell)
 
-## ⚙️ How to Run (PowerShell)
-
-### 📋 Prerequisites
-- Node.js **18+**
+###  Prerequisites
+- Node.js **18+**  
 - **Docker Desktop** (for Postgres) or a local Postgres  
 
----
-#2) Install dependencies & prepare DB
+###  Step-by-Step
 
-### ▶️ 1) Start Postgres via Docker (recommended)
 ```powershell
+# 1) Start Postgres via Docker (recommended)
 cd d:\Projects\NovaVantix\FS-Intern_YourName
 docker compose up -d
 
-# Backend
+# 2) Install dependencies & prepare DB
 cd server
 npm install
 npx prisma generate
 npm run db:reset
 
-# Frontend
 cd ..\web
 npm install
 
-```
-
-#🖥️ 3) Run the apps
-# Backend
+# 3) Run the apps
 cd ..\server
 npm run dev
 
-# Frontend (new terminal)
 cd d:\Projects\NovaVantix\FS-Intern_YourName\web
 npm run dev
+````
 
+* Backend → [http://localhost:4000](http://localhost:4000)
+* Frontend → [http://localhost:5173](http://localhost:5173)
 
-Backend → http://localhost:4000
+## Env Setup
 
-Frontend → http://localhost:5173
+Copy `.env.sample` → `.env` in `server/` and adjust as needed.
 
-🌱 Env Setup
+**Seeded users:**
 
-Copy .env.sample → .env in server/ and edit if needed.
+* 👑 Admin → `admin@demo.test / Passw0rd!`
+* 👤 Member → `alice@demo.test / Passw0rd!`
+* 👤 Member → `bob@demo.test / Passw0rd!`
 
-Seeded users:
+## API Quick Reference
 
-👑 Admin → admin@demo.test / Passw0rd!
+* `POST /auth/login`
+* `GET /health`
+* `GET /projects?q=`
+* `POST /projects` *(admin only)*
+* `GET /projects/:id/tasks?status=&assignee=`
+* `POST /projects/:id/tasks`
+* `PATCH /tasks/:id` *(If-Match or body.version)*
+* `DELETE /tasks/:id` *(member: own; admin: any)*
 
-👤 Member → alice@demo.test / Passw0rd!
+## Tests
 
-👤 Member → bob@demo.test / Passw0rd!
-
-📖 API Quick Reference
-
-POST /auth/login
-
-GET /health
-
-GET /projects?q=
-
-POST /projects (admin only)
-
-GET /projects/:id/tasks?status=&assignee=
-
-POST /projects/:id/tasks
-
-PATCH /tasks/:id (If-Match or body.version)
-
-DELETE /tasks/:id (member: own; admin: any)
-
-🧪 Tests
+```powershell
 cd d:\Projects\NovaVantix\FS-Intern_YourName\server
 npm test
+```
 
-✅ What Works vs. Partial
+## What Works vs. Partial
 
-Core API aligns with spec, including optimistic locking and RBAC.
-
-Members can CRUD their own tasks within assigned projects; admin can manage all.
-
-Minimal but polished UI with optimistic updates and rollback on 409.
+* Core API aligns with spec, including **optimistic locking** and **RBAC**.
+* Members can **CRUD their own tasks** within assigned projects; admin can manage all.
+* Minimal but polished UI with **optimistic updates** and rollback on `409`.
 
 ⚠️ Known issues
 
-Metrics are minimal; can expand with more counters/gauges.
+* Metrics are minimal; can expand with more counters/gauges.
 
-🏗️ Architecture (ASCII)
+## Architecture (ASCII)
+
+```
  [Web (Vite React TS)]  -->  [API (Express TS)]  -->  [Prisma ORM]  -->  [PostgreSQL]
           |                    |  \
           |                    |   --> /auth, /projects, /tasks routes
       Optimistic UI         JWT middleware, RBAC, zod validation
           |                    |  \
         Browser <--- JSON -----+   --> pino logs, error handler, /metrics
-
-Do you want me to also add **GitHub Actions CI/CD badges** (like ✅ Build passing, 🧪 Tests passing, 🐳 Docker Ready) at the very top of the README?
-
+```
