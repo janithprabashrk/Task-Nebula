@@ -22,7 +22,8 @@ export const updateTaskSchema = z.object({
   title: z.string().min(1).optional(),
   status: z.enum(['todo', 'in_progress', 'done']).optional(),
   assigneeUserId: z.number().int().positive().optional(),
-  version: z.number().int().positive().optional(),
+  // Allow 0 as the initial version when using optimistic locking
+  version: z.number().int().nonnegative().optional(),
 });
 
 export function validate<T extends z.ZodTypeAny>(schema: T, source: 'body' | 'query' = 'body') {

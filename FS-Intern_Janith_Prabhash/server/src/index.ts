@@ -23,9 +23,13 @@ app.use('/projects', projectsRoutes);
 app.use('/tasks', tasksRoutes);
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT || 4000);
-app.listen(PORT, () => {
-  logger.info({ msg: 'server:start', port: PORT });
-});
+// Only start the HTTP server when not under tests (Vitest sets VITEST_WORKER_ID)
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST_WORKER_ID !== undefined;
+if (!isTest) {
+  const PORT = Number(process.env.PORT || 4000);
+  app.listen(PORT, () => {
+    logger.info({ msg: 'server:start', port: PORT });
+  });
+}
 
 export default app;

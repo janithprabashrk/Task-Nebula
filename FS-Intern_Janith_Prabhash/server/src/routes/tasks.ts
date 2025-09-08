@@ -12,8 +12,20 @@ router.patch('/:id', requireAuth, validate(updateTaskSchema), async (req: Reques
   const { title, status, assigneeUserId, version } = req.body as {
     title?: string; status?: 'todo'|'in_progress'|'done'; assigneeUserId?: number; version?: number;
   };
-  const providedVersion = ifMatch ? Number(ifMatch) : version;
-  if (!providedVersion) return res.status(400).json({ error: 'Missing version (If-Match header or body.version)' });
+  // Accept version from If-Match header (preferred) or body.version. Allow 0 as a valid version.
+  let providedVersion: number | undefined;
+  if (ifMatch !== undefined) {
+    const n = Number(ifMatch);
+    if (Number.isNaN(n)) {
+      return res.status(400).json({ error: 'Invalid If-Match version' });
+    }
+    providedVersion = n;
+  } else {
+    providedVersion = version;
+  }
+  if (providedVersion === undefined) {
+    return res.status(400).json({ error: 'Missing version (If-Match header or body.version)' });
+  }
 
   const user = (req as any).user as { id: number; role: 'admin'|'member' };
 
