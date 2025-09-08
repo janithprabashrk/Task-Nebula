@@ -1,9 +1,12 @@
 import js from '@eslint/js';
 
 export default [
+  // Global ignore rules (flat config ignores .eslintignore by default)
+  {
+    ignores: ['dist/**', 'node_modules/**', 'prisma/**/*.js', '**/prisma/**/*.js'],
+  },
   js.configs.recommended,
   {
-  ignores: ['dist/**', 'node_modules/**', 'prisma/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -11,6 +14,13 @@ export default [
     },
     rules: {
       'no-console': 'off',
+    },
+  },
+  {
+    files: ['prisma/seed.js'],
+    rules: {
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
     },
   },
 ];
